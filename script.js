@@ -1,104 +1,73 @@
-const urlFlags = 'https://countriesnow.space/api/v0.1/countries/flag/images';
+const urls = {
+    flags: 'https://countriesnow.space/api/v0.1/countries/flag/images',
+    population: 'https://countriesnow.space/api/v0.1/countries/population/cities',
+    capitals: 'https://countriesnow.space/api/v0.1/countries/capital'
+};
 
-async function fetchFlags() {
-    const flagsDiv = document.getElementById("flagsData");
-    if (flagsDiv.style.display === "none" || flagsDiv.style.display === "") {
-        flagsDiv.style.display = "block";
-        try {
-            const response = await fetch(urlFlags);
-            const data = await response.json();
+// General function to fetch and display data
+async function fetchData(url, divId, dataProcessor) {
+    const div = document.getElementById(divId);
+    if (div.style.display === "none" || div.style.display === "") {
+        div.style.display = "block";
+    } else {
+        div.style.display = "none";
+        return; // Exit if the section is hidden
+    }
 
-            flagsDiv.innerHTML = ""; // Clear previous data
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        div.innerHTML = ""; // Clear previous data
 
-            if (response.status === 200 && data && data.data) {
-                data.data.forEach(function(country) {
-                    const countryDiv = document.createElement("div");
-                    const img = document.createElement("img");
-                    img.src = country.flag;
-                    img.alt = country.name + " Flag";
-                    img.style.width = "50px";
-                    img.style.height = "30px";
-                    countryDiv.appendChild(document.createTextNode(country.name + ": "));
-                    countryDiv.appendChild(img);
-                    flagsDiv.appendChild(countryDiv);
-                });
-            } else {
-                console.log("Server Error", data.error ? data.error.message : "Unknown error");
-                flagsDiv.textContent = "No data available.";
-            }
-        } catch (error) {
-            console.log("Fetch Error", error);
+        if (response.ok && data && data.data) {
+            dataProcessor(data.data, div); // Use the processor function to render data
+        } else {
+            div.textContent = "No data available.";
         }
-    } else {
-        flagsDiv.style.display = "none";
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        div.textContent = "Error fetching data.";
     }
 }
 
-// Fetch Population Data
-function fetchPopulation() {
-    const populationDiv = document.getElementById("populationData");
-    if (populationDiv.style.display === "none" || populationDiv.style.display === "") {
-        populationDiv.style.display = "block";
-        fetch("https://countriesnow.space/api/v0.1/countries/population/cities")
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
-                populationDiv.innerHTML = ""; // Clear previous data
-
-                if (data && data.data) {
-                    let seenCountries = new Set();
-                    data.data.forEach(function(country) {
-                        if (!seenCountries.has(country.country)) {
-                            var countryDiv = document.createElement("div");
-                            countryDiv.textContent = country.country + " - Population: " + country.populationCounts[0].value;
-                            populationDiv.appendChild(countryDiv);
-                            seenCountries.add(country.country);
-                        }
-                    });
-                } else {
-                    populationDiv.textContent = "No data available.";
-                }
-            })
-            .catch(function(error) {
-                console.error("Error fetching population data:", error);
-            });
-    } else {
-        populationDiv.style.display = "none";
-    }
+// Process and display flags
+function processFlags(data, div) {
+    data.forEach(country => {
+        const countryDiv = document.createElement("div");
+        const img = document.createElement("img");
+        img.src = country.flag;
+        img.alt = `${country.name} Flag`;
+        img.style.width = "50px";
+        img.style.height = "30px";
+        countryDiv.textContent = `${country.name}: `;
+        countryDiv.appendChild(img);
+        div.appendChild(countryDiv);
+    });
 }
 
-// Fetch Capitals Data
-function fetchCapitals() {
-    const capitalsDiv = document.getElementById("capitalsData");
-    if (capitalsDiv.style.display === "none" || capitalsDiv.style.display === "") {
-        capitalsDiv.style.display = "block";
-        fetch("https://countriesnow.space/api/v0.1/countries/capital")
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
-                capitalsDiv.innerHTML = ""; // Clear previous data
-
-                if (data && data.data) {
-                    data.data.forEach(function(country) {
-                        var countryDiv = document.createElement("div");
-                        countryDiv.textContent = country.name + " - Capital: " + country.capital;
-                        capitalsDiv.appendChild(countryDiv);
-                    });
-                } else {
-                    capitalsDiv.textContent = "No data available.";
-                }
-            })
-            .catch(function(error) {
-                console.error("Error fetching capitals data:", error);
-            });
-    } else {
-        capitalsDiv.style.display = "none";
-    }
+// Process and display population
+function processPopulation(data, div) {
+    const seenCountries = new Set();
+    data.forEach(country => {
+        if (!seenCountries.has(country.country)) {
+            const countryDiv = document.createElement("div");
+            countryDiv.textContent = `${country.country} - Population: ${country.populationCounts[0].value}`;
+            div.appendChild(countryDiv);
+            seenCountries.add(country.country);
+        }
+    });
 }
 
-// Event Listeners
-document.getElementById("fetchPopulationBtn").addEventListener("click", fetchPopulation);
-document.getElementById("fetchCapitalsBtn").addEventListener("click", fetchCapitals);
-document.getElementById("fetchFlagsBtn").addEventListener("click", fetchFlags);
+// Process and display capitals
+function processCapitals(data, div) {
+    data.forEach(country => {
+        const countryDiv = document.createElement("div");
+        countryDiv.textContent = `${country.name} - Capital: ${country.capital}`;
+        div.appendChild(countryDiv);
+    });
+}
+
+// Event Listeners for buttons
+document.getElementById("fetchPopulationBtn").addEventListener("click", () => fetchData(urls.population, "populationData", processPopulation));
+document.getElementById("fetchCapitalsBtn").addEventListener("click", () => fetchData(urls.capitals, "capitalsData", processCapitals));
+document.getElementById("fetchFlagsBtn").addEventListener("click", () => fetchData(urls.flags, "flagsData", processFlags));
