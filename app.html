@@ -5,52 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Country Information Viewer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div class="container">
         <h1>Country Information Viewer</h1>
-        <button onclick="fetchCountryPopulation()">Fetch Country Population</button>
-        <button onclick="fetchCountryCapitals()">Fetch Country Capitals</button>
-        <button onclick="fetchCountryFlags()">Fetch Country Flags</button>
-        <div id="countryCapitals"></div>
-        <div id="countryFlags"></div>
-        <canvas id="populationChart"></canvas>
-    </div>
+        <button id="fetchPopulationBtn">Fetch Country Population</button>
+        <button id="fetchCapitalsBtn">Fetch Country Capitals</button>
+        <button id="fetchFlagsBtn">Fetch Country Flags</button>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="script.js"></script>
-    <div style="margin-top: 20px;">
-        <h3>API Information</h3>
-        <table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
-            <thead>
-                <tr>
-                    <th>Description</th>
-                    <th>Link</th>
-                    <th>HTTP Verb</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Gets all countries and their capital</td>
-                    <td><a href="https://countriesnow.space/api/v0.1/countries/capital" target="_blank">https://countriesnow.space/api/v0.1/countries/capital</a></td>
-                    <td>GET</td>
-                </tr>
-                <tr>
-                    <td>Gets a single country with flag</td>
-                    <td><a href="https://countriesnow.space/api/v0.1/countries/flag/images" target="_blank">https://countriesnow.space/api/v0.1/countries/flag/images</a></td>
-                    <td>POST</td>
-                </tr>
-                <tr>
-                    <td>Gets cities and their population data</td>
-                    <td><a href="https://countriesnow.space/api/v0.1/countries/population/cities" target="_blank">https://countriesnow.space/api/v0.1/countries/population/cities</a></td>
-                    <td>GET</td>
-                </tr>
-            </tbody>
-        </table>
+        <div id="populationData" class="data-section"></div>
+        <div id="capitalsData" class="data-section"></div>
+        <div id="flagsData" class="data-section"></div>
     </div>
+    <script src="script.js"></script>
 </body>
 
 </html>
